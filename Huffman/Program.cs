@@ -171,16 +171,17 @@ namespace Huffman
     }
     class Program
     {
-
+        public static string output;
         static void Main(string[] args)
         {
             List<Node> nodeList;
             string src;
+            
             using (StreamReader fs = new StreamReader(@"F:\Projects\Huffman\Huffman\source.txt"))
             {
                 src = fs.ReadToEnd();
             }
-            Console.WriteLine(src);
+            Console.WriteLine("Oryginał: " + src);
             nodeList = HuffmanTree.buildList(src);
             HuffmanTree.PrintInformation(nodeList);
             HuffmanTree.buildTree(nodeList);
@@ -188,10 +189,19 @@ namespace Huffman
             Console.WriteLine("Wygląd drzewa:");
             HuffmanTree.PrintTree(0, nodeList[0]);
             Console.WriteLine("Kody liter:");
+            /*
             foreach(KeyValuePair<char, string> para in HuffmanTree.codes)
             {
                 Console.WriteLine(para.ToString());
             }
+            */
+            string val;
+            foreach (char c in src)
+            {
+                HuffmanTree.codes.TryGetValue(c, out val);
+                output += val;
+            }
+            Console.Write(output);
             Console.ReadKey();
         }
     }
