@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
+using System.Collections;
+
 namespace Huffman
 
 {
@@ -58,11 +60,11 @@ namespace Huffman
             this.freq = n1.freq + n2.freq;
             rightNode.parentNode = leftNode.parentNode = this;
         }
-            /// <summary>
-            /// Przeciążona metoda interfejsu IComparable, aby móc stosować metodę .Sort() dla listy obiektów klasy Node
-            /// </summary>
-            /// <param name="other">referencja do porównywanego obiektu klasy Node</param>
-            /// <returns></returns>
+        /// <summary>
+        /// Przeciążona metoda interfejsu IComparable, aby móc stosować metodę .Sort() dla listy obiektów klasy Node
+        /// </summary>
+        /// <param name="other">referencja do porównywanego obiektu klasy Node</param>
+        /// <returns></returns>
         public int CompareTo(Node other)
         {
             return this.freq.CompareTo(other.freq);
@@ -168,6 +170,39 @@ namespace Huffman
             foreach (var item in nodeList)
                 Console.WriteLine("Litera : {0} - Częstość występowania: {1}", item.letter, item.freq);
         }
+
+        public static void DecodeData(Node parentNode, Node currentNode, int pointer, string input)
+        {
+            if (input.Length == pointer)
+            {
+                if (currentNode.leftNode == null && currentNode.rightNode == null)
+                {
+                    Console.Write(currentNode.letter);
+                }
+
+                return;
+            }
+            else
+            {
+                if (currentNode.leftNode == null && currentNode.rightNode == null)
+                {
+                    Console.Write(currentNode.letter);
+                    DecodeData(parentNode, parentNode, pointer, input);
+                }
+                else
+                {
+                    if (input.Substring(pointer, 1) == "0")
+                    {
+                        DecodeData(parentNode, currentNode.leftNode, ++pointer, input);
+                    }
+                    else
+                    {
+                        DecodeData(parentNode, currentNode.rightNode, ++pointer, input);
+                    }
+                }
+            }
+        }
+
     }
     class Program
     {
@@ -176,7 +211,7 @@ namespace Huffman
         {
             List<Node> nodeList;
             string src;
-            
+
             using (StreamReader fs = new StreamReader(@"F:\Projects\Huffman\Huffman\source.txt"))
             {
                 src = fs.ReadToEnd();
@@ -189,19 +224,21 @@ namespace Huffman
             Console.WriteLine("Wygląd drzewa:");
             HuffmanTree.PrintTree(0, nodeList[0]);
             Console.WriteLine("Kody liter:");
-            /*
             foreach(KeyValuePair<char, string> para in HuffmanTree.codes)
             {
                 Console.WriteLine(para.ToString());
             }
-            */
             string val;
             foreach (char c in src)
             {
                 HuffmanTree.codes.TryGetValue(c, out val);
                 output += val;
             }
-            Console.Write(output);
+            Console.WriteLine("Coded:");
+            Console.WriteLine(output);
+            Console.WriteLine("Decoded:");
+
+            HuffmanTree.DecodeData(nodeList[0], nodeList[0], 0, output);
             Console.ReadKey();
         }
     }
